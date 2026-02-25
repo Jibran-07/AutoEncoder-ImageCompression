@@ -130,6 +130,8 @@ Since this is <strong>unsupervised learning</strong>, labels are not used.
   <li><code>axis("off")</code> – Removes axes</li>
 </ul>
 
+<hr>
+
 <h2>Applications</h2>
 
 <ul>

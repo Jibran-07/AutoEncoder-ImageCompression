@@ -1,83 +1,143 @@
-AutoEncoder Image Compression
+<h1 align="center">AutoEncoder Image Compression</h1>
 
-Language Used: Python
-Libraries Used: PyTorch (torch), TorchVision (torchvision), Matplotlib (matplotlib)
-Dataset Used: Fashion-MNIST (contains 60,000 grayscale images)
+<hr>
 
-Workflow
+<h2>Project Overview</h2>
 
-Defining our Model Class
+<p><strong>Language Used:</strong> Python</p>
+<p><strong>Libraries Used:</strong> PyTorch (torch), TorchVision (torchvision), Matplotlib (matplotlib)</p>
+<p><strong>Dataset Used:</strong> Fashion-MNIST (contains 60,000 grayscale images)</p>
 
-The SimpleAutoencoder class inherits from nn.Module, which serves as the base class for all neural network implementations. The Module class provides methods like train() for training a model and eval() for testing.
+<hr>
 
-The constructor of SimpleAutoencoder defines how the model is structured. The input_size represents the input to the model — in this case, a 28×28 Fashion-MNIST image. The hidden_size parameter represents the dimension to which the input image will be compressed and can be interpreted as the number of artificial neurons in the lower-dimensional representation.
+<h2>Workflow</h2>
 
-The encoding layer performs a linear transformation from the higher-dimensional image space to a lower dimension, creating a bottleneck that forces the model to learn important features. The decoding layer performs the reverse operation.
+<h3>1️⃣ Defining the Model Class</h3>
 
-The ReLU activation function maps each value to max(0, x), neutralizing negative values in the compressed representation. This introduces sparsity and helps the model learn more efficient feature representations.
+<p>
+The <strong>SimpleAutoencoder</strong> class inherits from <code>nn.Module</code>, the base class for all neural network implementations in PyTorch.
+It provides built-in methods such as <code>train()</code> and <code>eval()</code>.
+</p>
 
-The forward function defines the core workflow. The view() method converts 2D images into 1D vectors since linear layers expect 1D input. The -1 batch parameter instructs PyTorch to infer the batch size automatically (64 in this case). The encoded values pass through the activation function, are decoded, and then returned.
+<p>
+The constructor defines:
+</p>
 
-Loading Data for Training & Testing
+<ul>
+  <li><strong>input_size</strong>: 28 × 28 image flattened into a vector.</li>
+  <li><strong>hidden_size</strong>: Dimension of compressed representation (bottleneck).</li>
+</ul>
 
-Two separate datasets are defined: one for training and one for testing. This separation improves generalization so the model performs well on unseen data.
+<p>
+The <strong>Encoder</strong> performs linear transformation from high-dimensional input to lower dimension.
+The <strong>Decoder</strong> reconstructs the image back to original dimension.
+</p>
 
-The ToTensor() transform scales pixel values to the range [0,1] instead of [0,255]. Large pixel values can produce large gradients and destabilize training.
+<p>
+The <strong>ReLU activation function</strong> applies <code>max(0, x)</code> to introduce sparsity and improve feature learning efficiency.
+</p>
 
-Using DataLoader enables batch processing. Instead of processing images one by one, the model processes them in groups, which speeds up training. However, larger batch sizes require more memory.
+<p>
+The <code>forward()</code> function:
+</p>
 
-Shuffling the training data prevents the model from learning order-based patterns and reduces overfitting.
+<ul>
+  <li>Flattens 2D images into 1D vectors using <code>view()</code></li>
+  <li>Passes data through encoder → activation → decoder</li>
+  <li>Returns reconstructed image</li>
+</ul>
 
-Defining the Loss Function & Optimization Algorithm
+<hr>
 
-The loss function measures how much the model’s predictions differ from the actual values. Mean Squared Error (MSE) computes the mean squared difference between reconstructed and original images.
+<h3>2️⃣ Loading Data for Training & Testing</h3>
 
-The optimizer determines how the model’s weights are updated to minimize loss. The Adam optimizer adaptively adjusts learning rates for each parameter.
+<ul>
+  <li>Separate datasets used for training and testing (ensures generalization).</li>
+  <li><code>ToTensor()</code> normalizes pixel values to range [0,1].</li>
+  <li><code>DataLoader</code> enables batch processing.</li>
+  <li>Training data is shuffled to prevent order-based learning and overfitting.</li>
+</ul>
 
-The learning rate (lr) controls how quickly the model learns:
+<hr>
 
-Too high → may overshoot the minimum
+<h3>3️⃣ Loss Function & Optimization</h3>
 
-Too low → training becomes very slow
+<p><strong>Loss Function:</strong> Mean Squared Error (MSE)</p>
+<p>
+MSE calculates the average squared difference between reconstructed and original images.
+</p>
 
-An epoch is one full pass through the dataset. Too many epochs can cause overfitting, while too few lead to underfitting.
+<p><strong>Optimizer:</strong> Adam</p>
+<p>
+Adam adjusts weights based on computed gradients.
+</p>
 
-Training Loop
+<ul>
+  <li><strong>Learning Rate (lr):</strong> Controls speed of learning.</li>
+  <li><strong>Epochs:</strong> One full pass through dataset.</li>
+</ul>
 
-The model is set to train() mode, which enables behaviors like dropout (if present). Since this is unsupervised learning, labels are not used — the model learns to reconstruct the input.
+<p>
+Too many epochs → Overfitting <br>
+Too few epochs → Underfitting
+</p>
 
-zero_grad() clears accumulated gradients so each batch computes a fresh update.
+<hr>
 
-After computing the loss, backpropagation calculates gradients, and optimizer.step() updates the weights. The epoch loss is accumulated and displayed.
+<h3>4️⃣ Training Loop</h3>
 
-Testing Loop
+<ul>
+  <li><code>model.train()</code> enables training mode.</li>
+  <li><code>zero_grad()</code> resets accumulated gradients.</li>
+  <li>Forward pass → Loss calculation → Backpropagation.</li>
+  <li><code>optimizer.step()</code> updates model weights.</li>
+  <li>Loss printed epoch-wise.</li>
+</ul>
 
-The model switches to evaluation mode using eval(), disabling dropout for consistent results.
+<p>
+Since this is <strong>unsupervised learning</strong>, labels are not used.
+</p>
 
-The torch.no_grad() context prevents gradient computation, improving efficiency during testing. The test loss is computed over the dataset and displayed.
+<hr>
 
-Displaying Reconstructed Image
+<h3>5️⃣ Testing Loop</h3>
 
-The first image from the test dataset is passed through the model. The unsqueeze() method adds the required batch dimension.
+<ul>
+  <li><code>model.eval()</code> disables training-specific layers.</li>
+  <li><code>torch.no_grad()</code> improves efficiency by disabling gradient computation.</li>
+  <li>Test loss calculated on entire test dataset.</li>
+</ul>
 
-Both original and reconstructed images are reshaped back to 28×28 using view() so they can be displayed with matplotlib.
+<hr>
 
-Key plotting functions:
+<h3>6️⃣ Displaying Reconstructed Images</h3>
 
-figure() sets display size
+<ul>
+  <li>First test image selected.</li>
+  <li><code>unsqueeze()</code> adds batch dimension.</li>
+  <li><code>view()</code> reshapes tensors back to 28×28.</li>
+  <li><code>matplotlib.pyplot</code> used for visualization.</li>
+</ul>
 
-subplot() controls placement
+<p>
+<strong>Matplotlib functions used:</strong>
+</p>
 
-axis('off') removes axes for cleaner visualization
+<ul>
+  <li><code>figure()</code> – Sets display size</li>
+  <li><code>subplot()</code> – Arranges image positions</li>
+  <li><code>imshow()</code> – Displays image</li>
+  <li><code>axis("off")</code> – Removes axes</li>
+</ul>
 
-Applications
+<h2>Applications</h2>
 
-Image/Audio Compression
+<ul>
+  <li>Image / Audio Compression</li>
+  <li>Pattern Recognition</li>
+  <li>Database Storage Optimization</li>
+  <li>Anomaly Detection</li>
+  <li>Image Restoration</li>
+</ul>
 
-Pattern Recognition
-
-Database Storage Optimization
-
-Anomaly Detection
-
-Image Restoration
+<hr>
